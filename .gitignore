@@ -1,0 +1,32 @@
+# Ignore build directories
+/build/
+/build-*/
+/output/
+/output-*/
+
+# CMake generated files
+CMakeFiles/
+/CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Visual Studio Code / CLion
+.vscode/
+.idea/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Compiled object files, binaries, libraries
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+*.out
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
