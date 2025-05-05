@@ -3,11 +3,13 @@
 
 #include "ray.h"
 
+class primitive;
 class hit_struct{
     public:
         point3 p;
         vec3 normal;
         double t;
+        primitive* prim;
 };
 
 class primitive
@@ -15,6 +17,7 @@ class primitive
 public:
     virtual ~primitive() = default;
     virtual bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_struct& hit_out) const = 0;
+    virtual color get_color_at(const ray&  r, const hit_struct&  hit) const = 0;
 };
 
 #endif

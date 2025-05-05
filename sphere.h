@@ -7,6 +7,7 @@
 class sphere : public primitive {
     public:
         sphere(const point3& center, double radius) : center(center), radius(std::fmax(0, radius)) {}
+
         bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_struct& hit_out) const override {
             // solving quadratic equation for hitting sphere with b = -2h
             // simplifies to (h+- sqrt(h^2 - ac)) / a
@@ -32,6 +33,12 @@ class sphere : public primitive {
 
             return true;
         }
+
+        color get_color_at(const ray& /*r*/, const hit_struct& hit) const override 
+        {
+            return 0.5 * (hit.normal + color(1,1,1)); // temporary visualization of normals
+        }
+        
     private:
         point3 center;
         double radius;

@@ -68,6 +68,7 @@ private:
             if (hittable->hit(r, 0.001, INFINITY, hit)) {  // 0.001 to avoid shadow acne
                 if (hit.t < hit_out.t) {
                     hit_out = hit;
+                    hit_out.prim = hittable;
                 }
             }
         }
@@ -75,6 +76,7 @@ private:
         // If no hit occurred, set t to -INFINITY as signal
         if (hit_out.t == INFINITY) {
             hit_out.t = -INFINITY;
+            hit_out.prim = nullptr;
         }
     
         return hit_out;
@@ -82,7 +84,7 @@ private:
 
     color get_color(const ray& r, const hit_struct& hit) const {
         if(hit.t > -INFINITY){
-            return 0.5 * (hit.normal + color(1,1,1));
+            return hit.prim->get_color_at(r, hit);
         }
 
         return bg_color;

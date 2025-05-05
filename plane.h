@@ -24,9 +24,23 @@ public:
         return true;
     }
 
+    color get_color_at(const ray& /*r*/, const hit_struct& hit) const override 
+    {
+        color base = checkerboard_color(color(1,1,1), hit.p);
+        return base;
+    }
+
 private:
     vec3 normal;
     double d;
+
+    color checkerboard_color(const color& rgb, const point3 hitPoint) const {
+        const float scale = 0.5f;
+        int ix = floor(hitPoint.x()/scale);
+        int iy = floor(hitPoint.y()/scale);
+        bool dark = ((ix+iy)&1)==0;
+        return dark ? 0.5f*rgb : rgb;
+    }
 };
 
 #endif

@@ -6,32 +6,6 @@
 #include <iostream>
 #include <vector>
 
-vec3 checkerboardColor(const color& rgbColor, const vec3& hitPoint) {
-    float scaleParameter = 0.5f;
-    float checkerboard = 0;
-
-    if (hitPoint.x() < 0) {
-        checkerboard += std::floor((0.5f - hitPoint.x()) / scaleParameter);
-    } else {
-        checkerboard += std::floor(hitPoint.x() / scaleParameter);
-    }
-
-    if (hitPoint.y() < 0) {
-        checkerboard += std::floor((0.5f - hitPoint.y()) / scaleParameter);
-    } else {
-        checkerboard += std::floor(hitPoint.y() / scaleParameter);
-    }
-
-    checkerboard = (checkerboard * 0.5f) - int(checkerboard * 0.5f);
-    checkerboard *= 2;
-
-    if (checkerboard > 0.5f) {
-        return 0.5f * rgbColor;
-    }
-
-    return rgbColor;
-}
-
 int main(){
     int px_height = 256;
     int px_width = 256;
