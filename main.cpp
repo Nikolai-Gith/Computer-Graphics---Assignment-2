@@ -45,7 +45,14 @@ int main(){
     // std::vector<primitive*> scene;
     // scene.push_back(&sphere_test);
 
-    std::vector<primitive*> scene = scene_parser.get_objects();
+    // Get scene objects
+    auto scene_objects = scene_parser.get_scene_objects();
+
+    // Add to scene
+    std::vector<primitive*> scene;
+    for (const auto& obj : scene_objects) {
+        scene.push_back(obj.shape);
+    }
 
     // Camera
     auto camera_center = scene_parser.get_eye();

@@ -61,17 +61,22 @@ private:
     // -infinity on hit_out.t means no intersection occured
     hit_struct get_min_intersection(const ray& r, const std::vector<primitive*>& scene) const {
         hit_struct hit_out;
-        hit_out.t = -INFINITY;
+        hit_out.t = INFINITY;  // Start with max t
         hit_struct hit;
-
+    
         for (const auto& hittable : scene) {
-            if (hittable->hit(r, 0, INFINITY, hit)) {
-                if (hit.t > hit_out.t) {
+            if (hittable->hit(r, 0.001, INFINITY, hit)) {  // 0.001 to avoid shadow acne
+                if (hit.t < hit_out.t) {
                     hit_out = hit;
                 }
             }
         }
-
+    
+        // If no hit occurred, set t to -INFINITY as signal
+        if (hit_out.t == INFINITY) {
+            hit_out.t = -INFINITY;
+        }
+    
         return hit_out;
     }
 
