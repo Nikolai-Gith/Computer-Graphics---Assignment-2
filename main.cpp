@@ -41,12 +41,19 @@ int main(){
     scene_parser.load("scene1.txt");
 
     //temp
-    sphere sphere_test(point3(1, 0, 0), 0.5);
-    std::vector<primitive*> scene;
-    scene.push_back(&sphere_test);
+    // sphere sphere_test(point3(1, 0, 0), 0.3);
+    // std::vector<primitive*> scene;
+    // scene.push_back(&sphere_test);
+
+    std::vector<primitive*> scene = scene_parser.get_objects();
 
     // Camera
     auto camera_center = scene_parser.get_eye();
     camera cam(camera_center, px_height, px_width, color(0, 0, 0)); // black bg
     cam.render(scene, "output.png");
+
+    // Clean up memory
+    for (auto* obj : scene) {
+        delete obj;
+    }
 }
