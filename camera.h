@@ -54,11 +54,6 @@ public:
         // Calculate from exact center - for antialiasing to work without shifting
         auto pixel_upper_left = screen_origin;
 
-        // Adaptive sampling paramters
-        int max_samples = 32;
-        int min_samples = 2;
-        double variance_threshold = 0.001;
-
         // Render
         for (int j = 0; j < height; j++){
             std::cout << "\rScanlines remaining: " << (height - j) << ' ' << std::flush;
