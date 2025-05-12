@@ -15,6 +15,12 @@
 #include "light_source.h"
 #include "spotlight.h"
 
+// custom utility functions
+#include "util.h"
+
+#include <cstdlib> // for rand()
+#include <ctime>   // for seeding rand()
+
 // camera always looks at center of z=0 plane
 // where the right up corner is (1,1,0) and bottom left is (-1,-1,0)
 class camera
@@ -28,6 +34,9 @@ public:
                 const color& ambient,
                 const std::string& output_file_name)
     {
+        // get random value for jittering
+        std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
         // for output
         std::vector<unsigned char> image(width * height * 3);
 
@@ -41,17 +50,55 @@ public:
         auto pixel_delta_v = screen_v / height;
 
         // Calculate pixel location of upper left pixel
-        auto pixel_upper_left = screen_origin + 0.5 * (pixel_delta_u + pixel_delta_v);
+        // auto pixel_upper_left = screen_origin + 0.5 * (pixel_delta_u + pixel_delta_v);
+        // Calculate from exact center - for antialiasing to work without shifting
+        auto pixel_upper_left = screen_origin;
+
+        // Adaptive sampling paramters
+        int max_samples = 32;
+        int min_samples = 2;
+        double variance_threshold = 0.001;
 
         // Render
         for (int j = 0; j < height; j++){
             std::cout << "\rScanlines remaining: " << (height - j) << ' ' << std::flush;
             for (int i = 0; i < width; i++){
-                auto pixel_center = pixel_upper_left + (i * pixel_delta_u) + (j * pixel_delta_v);
-                auto ray_direction = pixel_center - orig;
-                ray r(orig, ray_direction);
-                auto intersection_hit = get_min_intersection(r, scene, INFINITY);
-                auto pixel_color = shade(r, intersection_hit, scene, lights, ambient);
+                color pixel_color(0, 0, 0);
+                int samples_per_axis = 3;
+                double inv_samples = 1.0 / (samples_per_axis * samples_per_axis);
+
+                for (int sy = 0; sy < samples_per_axis; ++sy) {
+                    for (int sx = 0; sx < samples_per_axis; ++sx) {
+                        double jitter_x = ((double) std::rand() / RAND_MAX);
+                        double jitter_y = ((double) std::rand() / RAND_MAX);
+
+                        // Proper per-grid jittered sample
+                        double offset_u = (i + (sx + jitter_x) / samples_per_axis);
+                        double offset_v = (j + (sy + jitter_y) / samples_per_axis);
+
+                        auto pixel_sample = pixel_upper_left 
+                            + offset_u * pixel_delta_u 
+                            + offset_v * pixel_delta_v;
+
+                        auto ray_direction = pixel_sample - orig;
+                        ray r(orig, ray_direction);
+                        auto intersection_hit = get_min_intersection(r, scene, INFINITY);
+                        pixel_color += shade(r, intersection_hit, scene, lights, ambient);
+                    }
+                }
+                pixel_color *= inv_samples;
+                // Normalize
+                pixel_color = clamp(pixel_color, 0.0, 1.0);
+
+                // Gamma correction
+                double gamma = 1.0;
+                // correct if power != 1
+                if(gamma != 1.0)
+                    pixel_color = color(
+                        pow(pixel_color.x(),gamma),
+                        pow(pixel_color.y(),gamma),
+                        pow(pixel_color.z(),gamma)
+                    );
                 write_color(image, (j * width + i) * 3, pixel_color);
             }
         }
