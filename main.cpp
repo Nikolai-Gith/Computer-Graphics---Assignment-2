@@ -22,6 +22,9 @@ int main(){
     // Get scene objects
     auto scene_objects = scene_parser.get_scene_objects();
 
+    // Get light sources
+    auto light_sources = scene_parser.get_lights();
+
     // Add to scene
     std::vector<primitive*> scene;
     for (const auto& obj : scene_objects) {
@@ -34,7 +37,6 @@ int main(){
     cam.render(scene, "output.png");
 
     // Clean up memory
-    for (auto* obj : scene) {
-        delete obj;
-    }
+    for (auto* obj : scene) delete obj;
+    for (auto* l : light_sources) delete l;
 }

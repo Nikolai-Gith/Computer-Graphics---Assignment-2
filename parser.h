@@ -114,79 +114,65 @@ class parser{
             throw std::runtime_error("Ambient light not found.");
         }
 
-        // Get Directional Lights
-        std::vector<light_t> get_directional_lights(){
-            std::vector<light_t> result;
-        
-            for (size_t i = 0; i < lines.size(); ++i){
-                std::istringstream iss(lines[i]);
-                std::string identifier;
-                iss >> identifier;
-        
-                if(identifier == "d"){
-                    double x, y, z, w;
-                    iss >> x >> y >> z >> w;
-                    if(w == 0.0){
-                        // Directional light
-                        vec3 dir(x, y, z);
-        
-                        // Look ahead for corresponding intensity
-                        if (i+1 < lines.size()){
-                            std::istringstream iss2(lines[i+1]);
-                            std::string next;
-                            iss2 >> next;
-                            if(next == "i"){
-                                double r, g, b, _;
-                                iss2 >> r >> g >> b >> _;
-                                result.push_back({dir, color(r, g, b)});
-                            }
-                        }
-                    }
-                }
-            }
-        
-            return result;
-        }
-        
-        // Get spotlights
-        std::vector<spotlight_t> get_spotlights(){
-            std::vector<spotlight_t> result;
-        
-            std::vector<vec3> directions;
+        std::vector<light_source*> get_lights() {
+            std::vector<std::pair<vec3, double>> rawDirs;   // pair of direction and w (0=dir, 1=spot)
             std::vector<point3> positions;
-            std::vector<float> cutoffs;
+            std::vector<double> cutoffs;
             std::vector<color> intensities;
-        
-            for (const auto& line : lines){
+
+            for (const auto& line : lines) {
                 std::istringstream iss(line);
-                std::string identifier;
-                iss >> identifier;
-        
-                if(identifier == "d"){
+                std::string id;
+                iss >> id;
+
+                if (id == "d") {
                     double x, y, z, w;
                     iss >> x >> y >> z >> w;
-                    if(w == 1.0){
-                        directions.push_back(vec3(x, y, z));
-                    }
-                } else if(identifier == "p"){
-                    double x, y, z, cutoff;
-                    iss >> x >> y >> z >> cutoff;
+                    rawDirs.push_back(std::make_pair(vec3(x, y, z), w));
+                }
+                else if (id == "p") {
+                    double x, y, z, cutoffCos;
+                    iss >> x >> y >> z >> cutoffCos;
                     positions.push_back(point3(x, y, z));
-                    cutoffs.push_back(cutoff);
-                } else if(identifier == "i"){
+                    cutoffs.push_back(cutoffCos);
+                }
+                else if (id == "i") {
                     double r, g, b, _;
                     iss >> r >> g >> b >> _;
                     intensities.push_back(color(r, g, b));
                 }
             }
-        
-            size_t count = std::min(directions.size(), std::min(positions.size(), intensities.size()));
-            for(size_t i = 0; i < count; ++i){
-                result.push_back({directions[i], positions[i], cutoffs[i], intensities[i]});
+
+            std::vector<light_source*> result;
+            size_t spotIndex = 0;
+
+            for (size_t idx = 0; idx < rawDirs.size(); idx++) {
+                const std::pair<vec3, double>& dirPair = rawDirs[idx];
+                const vec3& dirVec = dirPair.first;
+                double w = dirPair.second;
+                color col = (idx < intensities.size() ? intensities[idx] : color(1, 1, 1));
+
+                if (w == 0.0) {
+                    // Directional light: w == 0
+                    result.push_back(new directional_light(dirVec, col));
+                } else {
+                    // Spotlight: w == 1
+                    if (spotIndex < positions.size() && spotIndex < cutoffs.size()) {
+                        result.push_back(
+                            new spotlight(
+                                positions[spotIndex],   
+                                dirVec,                 
+                                cutoffs[spotIndex],     
+                                col                     
+                            )
+                        );
+                        spotIndex++;
+                    }
+                }
             }
-        
+            
             return result;
-        }
+        } 
         
     private:
         std::vector<std::string> lines;
