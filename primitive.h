@@ -2,6 +2,7 @@
 #define PRIMITIVE_H
 
 #include "ray.h"
+#include "color.h"
 
 class primitive;
 class hit_struct{

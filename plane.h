@@ -7,7 +7,12 @@
 class plane : public primitive {
 public:
     // Plane equation: ax + by + cz + d = 0
-    plane(double a, double b, double c, double d) : normal(unit_vector(vec3(a, b, c))), d(d) {}
+    plane(double a, double b, double c, double d)
+    {
+        vec3 n = vec3(a, b, c);
+        this->normal = unit_vector(vec3(a, b, c));
+        this->d  = d / n.length(); // normalize d too
+    }
 
     bool hit(const ray& r, double ray_tmin, double ray_tmax, hit_struct& hit_out) const override {
         // Plane intersection: t = -(a·o + d) / (a·d)
