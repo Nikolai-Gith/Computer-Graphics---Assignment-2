@@ -36,7 +36,7 @@ class sphere : public primitive {
 
         color get_color_at(const ray& /*r*/, const hit_struct& hit) const override 
         {
-            return 0.5 * (hit.normal + color(1,1,1)); // temporary visualization of normals
+            return material.ambient;
         }
         
     private:

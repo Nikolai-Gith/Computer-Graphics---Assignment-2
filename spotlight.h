@@ -30,13 +30,15 @@ public:
     }
 
     color intensityAt(const point3& p) const override {
-        vec3 L = unit_vector(position - p);      // direction to light
+        vec3 L = unit_vector(p - position);       // direction to light
         double spotCos = dot(L, dir);            // alignment with cone axis
         if (spotCos < cutoff) 
             return color(0,0,0);                 // outside cone
-        // simple linear fall-off;
-        return radiance * ((spotCos - cutoff)/(1.0 - cutoff));
+
+        return radiance;
     }
+
+    point3 get_position() { return position; }
 };
 
 #endif

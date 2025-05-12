@@ -12,7 +12,15 @@
 #include "plane.h"
 #include "primitive.h"
 #include "color.h"
+#include "light_source.h"
+#include "spotlight.h"
+#include "directional_light.h"
 #include "definitions.h"
+
+struct scene_object {
+  primitive*   shape;
+  material_t   material;
+};
 
 class parser{
     public:
@@ -77,7 +85,7 @@ class parser{
                 std::string id;
                 iss >> id;
         
-                if(id == "o"){
+                if(id == "o" || id == "t" || id == "r"){
                     double x, y, z, w;
                     iss >> x >> y >> z >> w;
         

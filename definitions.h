@@ -3,9 +3,6 @@
 
 #include "vec3.h"
 #include "color.h"
-#include "primitive.h"
-#include "directional_light.h"
-#include "spotlight.h"
 
 struct light_t {
     vec3 direction;
@@ -23,11 +20,6 @@ struct material_t {
     color ambient;
     color diffuse;
     float shininess;
-};
-
-struct scene_object {
-    primitive* shape;
-    material_t material;
 };
 
 #endif

@@ -31,7 +31,7 @@ public:
 
     color get_color_at(const ray& /*r*/, const hit_struct& hit) const override 
     {
-        color base = checkerboard_color(color(1,1,1), hit.p);
+        color base = checkerboard_color(material.ambient, hit.p);
         return base;
     }
 
