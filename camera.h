@@ -85,7 +85,7 @@ public:
                 }
                 pixel_color *= inv_samples;
                 // Normalize
-                pixel_color = clamp(pixel_color, 0.0, 1.0);
+                // pixel_color = clamp(pixel_color, 0.0, 1.0); // moved clamping to write_color
 
                 // Gamma correction
                 double gamma = 1.0;
@@ -178,7 +178,7 @@ private:
             result += Ks * std::pow(RdotV, shininess) * Li;
         }
 
-        return color(std::min(result.x(), 1.0), std::min(result.y(), 1.0), std::min(result.z(), 1.0));
+        return result;
     }
 };
 
