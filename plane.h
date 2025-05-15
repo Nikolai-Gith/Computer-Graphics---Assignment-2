@@ -41,8 +41,8 @@ private:
 
     color checkerboard_color(const color& rgb, const point3 hitPoint) const {
         const float scale = 0.5f;
-        int ix = floor(hitPoint.x()/scale);
-        int iy = floor(hitPoint.y()/scale);
+        int ix = floor((hitPoint.x() + 1e-6)/scale);
+        int iy = floor((hitPoint.y() + 1e-6)/scale);
         bool dark = ((ix+iy)&1)==0;
         return dark ? 0.5f*rgb : rgb;
     }
