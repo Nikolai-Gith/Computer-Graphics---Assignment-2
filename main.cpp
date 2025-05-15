@@ -18,8 +18,42 @@ int main(int argc, char* argv[]) {
     std::string scene_file = input_name + ".txt";
     std::string output_file = "output_" + input_name + ".png";
 
+    // Default values
+    int aa_samples = 1;
     int px_height = 256;
     int px_width = 256;
+    double gamma = 1.0;
+
+    // Optional - Get Samples count
+    if (argc >= 3) {
+        try {
+            aa_samples = std::stoi(argv[2]);
+            std::cout << "Got AA samples: " << aa_samples << "\n";
+        } catch (...) {
+            std::cerr << "Invalid AA sample count, using default.\n";
+        }
+    }
+
+    // Optional - Get resolution
+    if (argc >= 4) {
+        try {
+            int resolution = std::stoi(argv[3]);
+            px_height = px_width = resolution;
+            std::cout << "Got resolution: " << resolution << "\n";
+        } catch (...) {
+            std::cerr << "Invalid resolution, using default.\n";
+        }
+    }
+
+    // Optional - Get gamma
+    if (argc >= 5) {
+        try {
+            gamma = std::stod(argv[4]);
+            std::cout << "Got gamma: " << gamma << "\n";
+        } catch (...) {
+            std::cerr << "Invalid gamma value, using default.\n";
+        }
+    }
 
     // Load and parse scene
     parser scene_parser;
@@ -39,8 +73,9 @@ int main(int argc, char* argv[]) {
 
     // Camera
     auto camera_center = scene_parser.get_eye();
+    //int aa_samples = scene_parser.get_aa_multisampling();
     camera cam(camera_center, px_height, px_width, color(0, 0, 0)); // black bg
-    cam.render(scene, light_sources, ambient, output_file);
+    cam.render(scene, light_sources, ambient, output_file, aa_samples, gamma);
 
     // Clean up memory
     for (auto* obj : scene) delete obj;
