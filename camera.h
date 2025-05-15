@@ -21,6 +21,8 @@
 #include <cstdlib> // for rand()
 #include <ctime>   // for seeding rand()
 
+#define AA_JITTER_REDUCTION 3
+
 // camera always looks at center of z=0 plane
 // where the right up corner is (1,1,0) and bottom left is (-1,-1,0)
 class camera
@@ -68,8 +70,8 @@ public:
                         double jitter_y = ((double) std::rand() / RAND_MAX);
 
                         // Proper per-grid jittered sample
-                        double offset_u = (i + (sx + jitter_x) / samples_per_axis);
-                        double offset_v = (j + (sy + jitter_y) / samples_per_axis);
+                        double offset_u = (i + (sx + jitter_x / AA_JITTER_REDUCTION) / samples_per_axis);
+                        double offset_v = (j + (sy + jitter_y / AA_JITTER_REDUCTION) / samples_per_axis);
 
                         auto pixel_sample = pixel_upper_left 
                             + offset_u * pixel_delta_u 
