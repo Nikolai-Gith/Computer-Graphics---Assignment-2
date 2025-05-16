@@ -1,0 +1,20 @@
+e 0.0 0.5 5.0 4.0
+a 0.1 0.1 0.1 1.0
+
+o 0.0 -1.0  0.0  -1.0    # floor at y = –1
+o -0.8 -0.5 -1.2  0.3     # left sphere
+o  0.8 -0.5 -1.5  0.4     # right sphere
+o  0.0  0.3 -1.0  0.35    # floating sphere
+
+c 0.8 0.8 0.8  5.0        # plane color/shininess
+c 1.0 0.2 0.2 50.0        # red sphere
+c 0.2 0.2 1.0 50.0        # blue sphere
+c 0.2 1.0 0.2 50.0        # green sphere
+
+d 0.5 -1.0 -0.5 0.0       # directional light
+d 0.0 -1.0 -1.0 1.0       # spotlight direction
+
+p 0.0 2.0 0.0 0.7         # spotlight position + cutoff cosine
+
+i 0.3 0.3 0.3 1.0         # dir-light intensity
+i 1.0 1.0 0.8 1.0         # spot-light intensity

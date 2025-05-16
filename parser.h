@@ -56,6 +56,23 @@ class parser{
             throw std::runtime_error("No 'e' (eye) line found in scene file.");
         }
 
+        int get_aa_samples(){
+            for(const auto& line : lines){
+                std::istringstream iss(line);
+                std::string identifier;
+                iss >> identifier;
+
+                if(identifier == "e"){
+                    double x, y, z, w;
+                    iss >> x >> y >> z >> w;
+                    int samples = int(w);
+                    if(samples < 1) samples = 1;
+                    return samples;
+                }
+            }
+            throw std::runtime_error("No 'e' (eye) line found in scene file.");
+        }        
+
         // Get scene objects
         std::vector<scene_object> get_scene_objects(){
             std::vector<scene_object> result;

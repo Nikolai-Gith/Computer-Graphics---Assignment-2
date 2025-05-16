@@ -21,6 +21,9 @@
 #include <cstdlib> // for rand()
 #include <ctime>   // for seeding rand()
 
+
+#define DEFAULT_AA_JITTER 0.8
+
 // camera always looks at center of z=0 plane
 // where the right up corner is (1,1,0) and bottom left is (-1,-1,0)
 class camera
@@ -55,6 +58,10 @@ public:
         // Calculate from exact center - for antialiasing to work without shifting
         auto pixel_upper_left = screen_origin;
 
+        // Prepare jitter multiplication
+        double jitter_mult = DEFAULT_AA_JITTER;
+        if(aa_samples == 1) jitter_mult = 0;
+
         // Render
         for (int j = 0; j < height; j++) {
             std::cout << "\rScanlines remaining: " << (height - j) << ' ' << std::flush;
@@ -63,8 +70,8 @@ public:
 
                 for (int sample = 0; sample < aa_samples; ++sample) {
                     // Jittered sample within pixel
-                    double jitter_x = ((double) std::rand() + 0.5) / (RAND_MAX + 1.0);
-                    double jitter_y = ((double) std::rand() + 0.5) / (RAND_MAX + 1.0);
+                    double jitter_x = (((double) std::rand() + 0.5) / (RAND_MAX + 1.0)) * jitter_mult;
+                    double jitter_y = (((double) std::rand() + 0.5) / (RAND_MAX + 1.0)) * jitter_mult;
 
                     double offset_u = (i + jitter_x);
                     double offset_v = (j + jitter_y);
