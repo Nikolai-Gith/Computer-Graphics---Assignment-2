@@ -22,7 +22,7 @@
 #include <ctime>   // for seeding rand()
 
 
-#define DEFAULT_AA_JITTER 0.8
+#define AA_JITTER_REDUCTION 3
 
 // camera always looks at center of z=0 plane
 // where the right up corner is (1,1,0) and bottom left is (-1,-1,0)
@@ -58,45 +58,46 @@ public:
         // Calculate from exact center - for antialiasing to work without shifting
         auto pixel_upper_left = screen_origin;
 
-        // Prepare jitter multiplication
-        double jitter_mult = DEFAULT_AA_JITTER;
-        if(aa_samples == 1) jitter_mult = 0;
-
         // Render
         for (int j = 0; j < height; j++) {
             std::cout << "\rScanlines remaining: " << (height - j) << ' ' << std::flush;
             for (int i = 0; i < width; i++) {
                 color pixel_color(0, 0, 0);
+                int samples_per_axis = aa_samples;
+                double inv_samples = 1.0 / (samples_per_axis * samples_per_axis);
 
-                for (int sample = 0; sample < aa_samples; ++sample) {
-                    // Jittered sample within pixel
-                    double jitter_x = (((double) std::rand() + 0.5) / (RAND_MAX + 1.0)) * jitter_mult;
-                    double jitter_y = (((double) std::rand() + 0.5) / (RAND_MAX + 1.0)) * jitter_mult;
+                for (int sy = 0; sy < samples_per_axis; ++sy) {
+                    for (int sx = 0; sx < samples_per_axis; ++sx) {
+                        double jitter_x = ((double) std::rand() / RAND_MAX);
+                        double jitter_y = ((double) std::rand() / RAND_MAX);
 
-                    double offset_u = (i + jitter_x);
-                    double offset_v = (j + jitter_y);
+                        // Proper per-grid jittered sample
+                        double offset_u = (i + (sx + jitter_x / AA_JITTER_REDUCTION) / samples_per_axis);
+                        double offset_v = (j + (sy + jitter_y / AA_JITTER_REDUCTION) / samples_per_axis);
 
-                    auto pixel_sample = pixel_upper_left 
-                        + offset_u * pixel_delta_u 
-                        + offset_v * pixel_delta_v;
+                        auto pixel_sample = pixel_upper_left 
+                            + offset_u * pixel_delta_u 
+                            + offset_v * pixel_delta_v;
 
-                    auto ray_direction = pixel_sample - orig;
-                    ray r(orig, ray_direction);
-                    auto intersection_hit = get_min_intersection(r, scene, INFINITY);
-                    pixel_color += shade(r, intersection_hit, scene, lights, ambient);
+                        auto ray_direction = pixel_sample - orig;
+                        ray r(orig, ray_direction);
+                        auto intersection_hit = get_min_intersection(r, scene, INFINITY);
+                        pixel_color += shade(r, intersection_hit, scene, lights, ambient);
+                    }
                 }
+                pixel_color *= inv_samples;
+                // Normalize
+                pixel_color = clamp(pixel_color, 0.0, 1.0);
 
-                pixel_color *= (1.0 / aa_samples);
-
-                // Gamma correction (if gamma ≠ 1)
-                double gamma = gamma_value;
-                if (gamma != 1.0) {
+                // Gamma correction
+                double gamma = 1.0;
+                // correct if power != 1
+                if(gamma != 1.0)
                     pixel_color = color(
-                        pow(pixel_color.x(), gamma),
-                        pow(pixel_color.y(), gamma),
-                        pow(pixel_color.z(), gamma)
+                        pow(pixel_color.x(),gamma),
+                        pow(pixel_color.y(),gamma),
+                        pow(pixel_color.z(),gamma)
                     );
-                }
 
                 write_color(image, (j * width + i) * 3, pixel_color);
             }
